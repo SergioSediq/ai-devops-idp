@@ -22,7 +22,7 @@ jobs:
                 working-directory: ai-agent
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Set up Python 3.11
               uses: actions/setup-python@v5
@@ -69,7 +69,7 @@ jobs:
             contents: read
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
@@ -103,7 +103,7 @@ jobs:
                 working-directory: infra
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
@@ -133,7 +133,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Install kubeconform
               run: |
@@ -158,7 +158,7 @@ jobs:
             contents: read
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
