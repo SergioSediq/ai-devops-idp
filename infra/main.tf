@@ -115,7 +115,7 @@ resource "random_id" "suffix" {
 ################################################################################
 module "ai_agent_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~> 5.0"
+  version = "~> 6.4"
 
   role_name = "ai-agent-cloudwatch-reader"
 
