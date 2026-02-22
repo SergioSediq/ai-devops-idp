@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: idp-platform
+  labels:
+    name: idp-platform
+    managed-by: argocd
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-agent-secrets
+  namespace: idp-platform
+type: Opaque
+data:
+  # Replace with: echo -n "your-google-api-key" | base64. Or use External Secrets (docs/SECRETS.md)
+  google-api-key: REPLACE_WITH_BASE64_ENCODED_KEY

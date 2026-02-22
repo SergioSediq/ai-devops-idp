@@ -1,0 +1,11 @@
+# Default owners for everything in the repo
+* @YOUR_ORG/platform-team
+
+# AI Agent (Python/FastAPI)
+/ai-agent/ @YOUR_ORG/platform-team
+
+# Infrastructure (Terraform)
+/infra/ @YOUR_ORG/platform-team
+
+# GitOps (Kubernetes)
+/gitops/ @YOUR_ORG/platform-team

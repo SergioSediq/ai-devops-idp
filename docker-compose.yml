@@ -1,0 +1,78 @@
+# ───────────────────────────────────────────────────────────────
+# docker-compose.yml — Local development stack
+# ───────────────────────────────────────────────────────────────
+version: "3.9"
+
+services:
+  # ── AI DevOps Agent ───────────────────────────────────────
+  ai-agent:
+    build:
+      context: ./ai-agent
+      dockerfile: Dockerfile
+    container_name: idp-ai-agent
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-pro}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:7007
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+    volumes:
+      - ./ai-agent/runbooks:/app/runbooks:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - idp-network
+
+  # ── PostgreSQL (Backstage backend DB) ─────────────────────
+  postgres:
+    image: postgres:14-alpine
+    container_name: idp-postgres
+    environment:
+      POSTGRES_DB: backstage
+      POSTGRES_USER: backstage_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-backstage_dev_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backstage_admin -d backstage"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - idp-network
+
+  # ── ChromaDB (Vector store for RAG) ──────────────────────
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: idp-chromadb
+    ports:
+      - "8100:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+    restart: unless-stopped
+    networks:
+      - idp-network
+
+volumes:
+  postgres_data:
+    driver: local
+  chroma_data:
+    driver: local
+
+networks:
+  idp-network:
+    driver: bridge
+    name: idp-platform-network

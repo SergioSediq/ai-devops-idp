@@ -1,0 +1,83 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: create-react-ssr-app
+  title: React SSR App on EKS
+  description: Scaffolds a production-ready React SSR app deployed to the IDP EKS cluster.
+  tags:
+    - react
+    - ssr
+    - eks
+    - aws
+spec:
+  owner: user:guest
+  type: service
+
+  parameters:
+    - title: Service Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Unique name of the service
+          ui:autofocus: true
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+    - title: Deployment Location
+      required:
+        - region
+      properties:
+        region:
+          title: AWS Region
+          type: string
+          description: AWS Region to deploy to
+          default: us-east-1
+          enum:
+            - us-east-1
+            - us-west-2
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base Template
+      action: fetch:template
+      input:
+        url: ./skeleton # References a local skeleton folder (needs to be created)
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          destination: ${{ parameters.name }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: This is ${{ parameters.name }}
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.name }}
+        defaultBranch: main
+        # Generate a new repo with the scaffolded code
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

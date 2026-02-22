@@ -1,0 +1,45 @@
+# OPA Gatekeeper policy — enforce cost-control tags on LoadBalancer services
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredloadbalancertags
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredLoadBalancerTags
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            requiredAnnotations:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredloadbalancertags
+
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Service"
+          input.review.object.spec.type == "LoadBalancer"
+          required := input.parameters.requiredAnnotations[_]
+          not input.review.object.metadata.annotations[required]
+          msg := sprintf("LoadBalancer Service '%v' is missing required annotation: %v", [input.review.object.metadata.name, required])
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLoadBalancerTags
+metadata:
+  name: require-cost-tags-on-loadbalancers
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Service"]
+    namespaces:
+      - idp-platform
+  parameters:
+    requiredAnnotations:
+      - "service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags"
