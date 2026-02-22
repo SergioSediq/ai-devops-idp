@@ -12,7 +12,7 @@ langchain-google-genai==0.0.6
 kubernetes==28.1.0
 
 # Utilities
-python-multipart==0.0.6
+python-multipart==0.0.22
 requests==2.31.0
 tiktoken==0.5.2
 chromadb==0.4.22
