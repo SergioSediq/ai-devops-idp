@@ -9,7 +9,7 @@ langchain==0.1.4
 langchain-google-genai==0.0.6
 
 # Kubernetes
-kubernetes==28.1.0
+kubernetes==35.0.0
 
 # Utilities
 python-multipart==0.0.6
